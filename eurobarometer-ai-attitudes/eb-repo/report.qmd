@@ -1,0 +1,222 @@
+---
+title: "Who Sees AI Positively?"
+subtitle: "Socioeconomic predictors of workplace AI attitudes across the European Union"
+author: "Patricia Givort Cruz Cabral"
+date: today
+abstract: |
+  Public attitudes toward artificial intelligence in the workplace vary widely across
+  the European Union, but the sources of that variation are not well understood. Using
+  Special Eurobarometer 554 (n = 26,404, EU27), this study examines which social and
+  economic factors predict positive perception of workplace AI. Survey-weighted logistic
+  regression shows that self-rated digital skill is the strongest predictor by a wide
+  margin, followed by direct workplace exposure to AI systems. Most of the apparent
+  effect of formal education operates through digital competence rather than
+  independently, and the association with age disappears once competence is controlled
+  for. Financial precarity predicts lower acceptance through a distinct pathway that
+  competence does not explain. The findings suggest that resistance to workplace AI is
+  better understood as a competence gap for some groups and as a rational threat
+  assessment for others.
+format:
+  pdf:
+    documentclass: article
+    geometry:
+      - top=25mm
+      - bottom=25mm
+      - left=25mm
+      - right=25mm
+    fontsize: 11pt
+    linestretch: 1.15
+    number-sections: true
+    colorlinks: true
+  html:
+    toc: true
+    number-sections: true
+    embed-resources: true
+bibliography: references.bib
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(tidyverse)
+library(knitr)
+
+# Results are read from the committed output tables so this document renders
+# without requiring the restricted microdata.
+edu       <- read_csv("../output/tables/perception_by_education.csv")
+precarity <- read_csv("../output/tables/perception_by_precarity.csv")
+country   <- read_csv("../output/tables/perception_by_country.csv")
+overall   <- read_csv("../output/tables/perception_overall.csv")
+or_tab    <- read_csv("../output/tables/regression_odds_ratios.csv")
+```
+
+# Introduction
+
+Generative artificial intelligence has moved into European workplaces faster than research on its social reception has been able to follow. Employers now use algorithmic systems to allocate tasks, schedule work, monitor activity, and assess performance. Whether workers accept these systems, resist them, or simply endure them has consequences for adoption, for industrial relations, and for the design of regulation.
+
+Existing survey research on AI attitudes has established that acceptance is unevenly distributed, but has tended to treat that unevenness descriptively. Comparative reports document that Danes are more favourable than Greeks without accounting for why. Where individual-level predictors have been examined, education and age recur as correlates, which invites an interpretation in terms of cohort effects or credential-based sorting.
+
+This study takes a different starting point. Research on digital inequality distinguishes between first-level divides in access and second-level divides in skills and effective use [@hargittai2002; @vandijk2005]. Applied to AI, this suggests that the relevant stratifying variable may be competence rather than credential. Technology acceptance research points in a compatible direction, treating perceived ease of use and prior experience as proximate determinants of adoption attitudes [@venkatesh2003].
+
+The study asks: which socioeconomic, demographic, and experiential factors predict positive perception of AI in the workplace among EU citizens, and does the apparent effect of education survive controls for digital competence and direct exposure?
+
+# Data and methods
+
+## Data
+
+Data come from Special Eurobarometer 554, fielded 25 April to 22 May 2024 by Verian at the request of the Directorate-General for Employment. The survey covers `r nrow(country)` samples across the EU27, with Germany split into East and West. The analytic sample is 26,404 respondents. Microdata were obtained from the GESIS Data Archive (study ZA8844, DOI 10.4232/1.14471).
+
+## Measures
+
+**Outcome.** The dependent variable is item QB5, which asks how positively or negatively respondents view the use of robots and artificial intelligence in the workplace. Responses run from "very positively" to "very negatively" on a four-point scale. The variable is dichotomised, with "very" and "fairly positively" coded as positive perception. Spontaneous "don't know" responses are treated as missing.
+
+**Digital skill.** Item QB2_1 asks respondents to agree or disagree that they are sufficiently skilled in recent digital technologies for daily life. The scale is reversed so that higher values indicate greater self-assessed competence.
+
+**Workplace AI exposure.** Items QB7_1 through QB7_6 ask whether AI has been used in the respondent's current or previous workplace for hiring, task allocation, scheduling, monitoring, performance assessment, or safety enforcement. A binary indicator marks respondents reporting AI use "all the time" or "often" for any of the six activities.
+
+**Education.** Eurobarometer records the age at which respondents left full-time education rather than ISCED level. Three ordered categories are constructed: up to 15, 16 to 19, and 20 or older. Respondents still studying and those reporting no full-time education are retained as separate categories.
+
+**Financial precarity.** Item D60 asks how often respondents had difficulty paying bills in the past year, with three substantive categories from "almost never" to "most of the time".
+
+**Controls.** Age in years, gender, and type of community (rural, small or medium town, large town).
+
+## Analytic strategy
+
+All estimates are survey-weighted. Eurobarometer supplies fifteen weight variables; `w1` is used for country-level estimates and `w22` for pooled EU27 estimates. No primary sampling unit or stratum identifiers are released, so a weights-only design is specified using the `survey` package.
+
+Eurobarometer codes "don't know" and refusal responses as substantive numeric values rather than as declared missing. These were recoded explicitly before analysis; the specific codes differ across items and are documented in the repository codebook.
+
+Two logistic regression models are estimated with a quasibinomial family, which accommodates the non-integer counts that survey weights produce. Model 1 includes demographic and socioeconomic predictors. Model 2 adds digital skill and workplace exposure.
+
+# Results
+
+## Overall distribution
+
+```{r}
+#| label: tbl-overall
+#| tbl-cap: "Perception of robots and AI in the workplace, EU27, survey-weighted"
+
+overall %>%
+  mutate(
+    Response = c("Very positively", "Fairly positively",
+                 "Fairly negatively", "Very negatively"),
+    Share = sprintf("%.1f%%", prop * 100),
+    CI = sprintf("[%.1f, %.1f]", prop_low * 100, prop_upp * 100)
+  ) %>%
+  select(Response, Share, `95% CI` = CI) %>%
+  kable(align = "lrr")
+```
+
+Roughly two thirds of EU citizens view workplace AI positively. The distribution is skewed toward the moderate categories: "fairly positively" alone accounts for 54% of responses, while strong opinions in either direction are comparatively rare.
+
+## Education
+
+```{r}
+#| label: fig-education
+#| fig-cap: "Positive perception of AI in the workplace, by education. Error bars show 95% confidence intervals."
+#| out-width: "85%"
+#| fig-align: center
+
+knitr::include_graphics("../output/figures/perception_by_education.png")
+```
+
+Positive perception rises steadily across education categories, from 47% among those who left full-time education at 15 or younger to 74% among those who studied to 20 or beyond. Respondents currently enrolled in education show the highest acceptance of any group at 81%, though this group is younger and its composition differs in other respects.
+
+## Financial precarity
+
+```{r}
+#| label: fig-precarity
+#| fig-cap: "Positive perception of AI, by difficulty paying bills in the last year. Error bars show 95% confidence intervals."
+#| out-width: "85%"
+#| fig-align: center
+
+knitr::include_graphics("../output/figures/perception_by_precarity.png")
+```
+
+Acceptance declines monotonically with financial difficulty: 70% among respondents who almost never struggle to pay bills, 62% among those who struggle occasionally, and 52% among those who struggle most of the time. The confidence intervals do not overlap.
+
+## Cross-national variation
+
+```{r}
+#| label: fig-country
+#| fig-cap: "Positive perception of AI in the workplace, by country. Error bars show 95% confidence intervals."
+#| out-width: "72%"
+#| fig-align: center
+
+knitr::include_graphics("../output/figures/perception_by_country.png")
+```
+
+The range across countries is wide. Denmark records 87% positive perception, Greece 51%. The Nordic countries and the Netherlands cluster at the top, and Southern Europe at the bottom, but the ordering does not follow national income in any simple way: Slovakia, Poland, Estonia, Latvia and Lithuania all rank above France, Spain and Italy.
+
+## Regression
+
+```{r}
+#| label: tbl-regression
+#| tbl-cap: "Weighted logistic regression predicting positive perception of workplace AI. EU27 weights, quasibinomial family."
+
+or_tab %>%
+  filter(term != "(Intercept)") %>%
+  mutate(
+    Predictor = recode(term,
+      "digital_skill"                   = "Digital skill (self-rated)",
+      "ai_exposure"                     = "Workplace AI exposure",
+      "edu_groupStill studying"         = "Currently studying",
+      "edu_groupHigh (20+)"             = "Education: high (20+)",
+      "edu_groupMedium (16-19)"         = "Education: medium (16-19)",
+      "edu_groupNo full-time education" = "No full-time education",
+      "community_fLarge town"           = "Large town",
+      "community_fSmall/medium town"    = "Small/medium town",
+      "age"                             = "Age (years)",
+      "gender_fWoman"                   = "Woman",
+      "precarityFrom time to time"      = "Precarity: occasional",
+      "precarityMost of the time"       = "Precarity: frequent"
+    ),
+    OR = sprintf("%.2f", odds_ratio),
+    CI = sprintf("[%.2f, %.2f]", ci_low, ci_high),
+    p  = if_else(p_value < 0.001, "< 0.001", sprintf("%.3f", p_value))
+  ) %>%
+  arrange(desc(odds_ratio)) %>%
+  select(Predictor, OR, `95% CI` = CI, p) %>%
+  kable(align = "lrrr")
+```
+
+Self-rated digital skill dominates the model. Each additional point on the four-point competence scale is associated with more than double the odds of positive perception (OR 2.11). Workplace exposure to AI is the second strongest predictor (OR 1.96), and its direction is worth noting: respondents who already work alongside these systems are more favourable, not less.
+
+Education retains a significant association but a much attenuated one. In a demographics-only specification, the odds ratio for the highest education category was 2.81. With digital skill and exposure in the model it falls to 1.46, suggesting that roughly half the apparent education effect operates through competence.
+
+The age coefficient becomes indistinguishable from zero (OR 1.00, p = 0.25). In the demographics-only model, each additional year of age reduced the odds of positive perception. That association does not survive the introduction of a competence measure.
+
+Financial precarity behaves differently. Frequent difficulty paying bills is associated with substantially lower odds of positive perception (OR 0.57) even with skill and exposure controlled. Whatever mechanism links economic pressure to AI scepticism, it is not captured by digital competence.
+
+# Discussion
+
+Three findings deserve emphasis.
+
+First, what appears in descriptive data as an education effect and an age effect is largely a competence effect. This is consistent with the second-level digital divide framework [@hargittai2002], which holds that inequality in the digital era operates less through access than through the skills required for effective use. Applied to AI, it suggests that the relevant fault line is not who has a degree but who feels able to work with these tools.
+
+Second, exposure increases acceptance. This runs against a plausible alternative in which familiarity with algorithmic management — being scheduled, monitored, and assessed by software — would breed resistance. The data show the opposite association. Two readings are available: exposure may genuinely reduce apprehension through familiarity, or workers in AI-intensive workplaces may be selected on prior favourability. Cross-sectional data cannot separate these.
+
+Third, financial precarity operates through a channel that competence does not explain. Respondents under economic pressure may be assessing workplace AI accurately as a threat to a position they cannot easily replace. If so, their scepticism is not a knowledge deficit and would not be remedied by training. This distinction matters: the policy implication of a competence gap is education, while the policy implication of an accurate threat assessment is protection.
+
+## Limitations
+
+The outcome is a single survey item rather than a validated multi-item scale. Digital skill is self-assessed and may capture general technological optimism alongside actual competence, which would inflate its association with the outcome. The design is cross-sectional, so no causal claims are warranted.
+
+Eurobarometer 554 contains no dedicated trust battery and no general AI awareness item, so claims about trust or AI literacy as measured constructs cannot be made from these data. Education is measured by age of leaving full-time education rather than by ISCED level, a coarse proxy that treats different national systems as equivalent.
+
+Eleven respondents were removed by GESIS to prevent re-identification, producing slight deviations from figures in the official Commission report.
+
+## Directions
+
+Two extensions follow naturally. The QB module partly replicates items fielded in Eurobarometer 87.1 in 2017, permitting a trend analysis of how attitudes shifted across the period in which generative AI became publicly available. Separately, the large cross-national variation invites a multilevel specification with country-level covariates — AI adoption rates, robot density, employment protection legislation, income inequality — to test whether institutional context explains variation that individual characteristics do not.
+
+# Data availability
+
+Analysis code and generated outputs are available at `github.com/patriciagvrt/eurobarometer-ai-attitudes`. Microdata are available from the GESIS Data Archive to registered users at no cost; redistribution is prohibited under the archive's terms of use.
+
+# References
+
+::: {#refs}
+:::
