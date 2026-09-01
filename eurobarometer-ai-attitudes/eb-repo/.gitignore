@@ -1,0 +1,16 @@
+# Raw data — GESIS terms of use prohibit redistribution
+data/*.sav
+data/*.dta
+data/*.csv
+data/*.zip
+!data/README.md
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# System
+.DS_Store
+Thumbs.db
