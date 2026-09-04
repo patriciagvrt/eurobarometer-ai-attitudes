@@ -2,7 +2,7 @@
 # Socioeconomic Predictors of AI Attitudes in the Workplace
 # Secondary analysis of Special Eurobarometer 554 / Eurobarometer 101.4
 #
-# Author: Patricia Givort Cruz Cabral
+# Author: Patricia  Cruz 
 # MSc Computational Social Science, Linköping University
 #
 # Data: GESIS ZA8844, DOI 10.4232/1.14471
