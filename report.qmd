@@ -45,11 +45,11 @@ library(knitr)
 
 # Results are read from the committed output tables so this document renders
 # without requiring the restricted microdata.
-edu       <- read_csv("../output/tables/perception_by_education.csv")
-precarity <- read_csv("../output/tables/perception_by_precarity.csv")
-country   <- read_csv("../output/tables/perception_by_country.csv")
-overall   <- read_csv("../output/tables/perception_overall.csv")
-or_tab    <- read_csv("../output/tables/regression_odds_ratios.csv")
+edu <- read_csv("output/tables/perception_by_education.csv")
+precarity <- read_csv("output/tables/perception_by_precarity.csv")
+country   <- read_csv("output/tables/perception_by_country.csv")
+overall   <- read_csv("output/tables/perception_overall.csv")
+or_tab    <- read_csv("output/tables/regression_odds_ratios.csv")
 ```
 
 # Introduction
