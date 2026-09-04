@@ -334,3 +334,44 @@ Generated outputs are stored in:
 output/
 ├── figures/
 └── tables/
+
+
+To reproduce the analysis:
+
+Obtain ZA8844 from the GESIS Data Archive.
+Download the SPSS .sav version.
+Place the file inside the data/ directory.
+Run analysis.R.
+Render report.qmd.
+Repository structure
+.
+├── README.md
+├── analysis.R
+├── report.qmd
+├── references.bib
+├── codebook_notes.md
+├── data/
+│   └── README.md
+├── output/
+│   ├── figures/
+│   └── tables/
+└── docs/
+Research output
+
+The full research report is available in:
+
+report.qmd
+
+The project is being developed as an independent working paper in Computational Social Science.
+
+Data citation
+
+European Commission, Brussels. Eurobarometer 101.4, April-May 2024. Verian, Brussels [Producer]. GESIS, Cologne [Publisher]. ZA8844, dataset version 1.0.0.
+
+DOI: 10.4232/1.14471
+
+License
+
+Analysis code is provided for research and educational use.
+
+The underlying Eurobarometer microdata are not redistributed and remain subject to GESIS terms of use.
